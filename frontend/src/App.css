@@ -1,0 +1,117 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0f1e;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+h1 { color: #60a5fa; font-size: 1.8rem; }
+h2 { color: #e2e8f0; margin: 1rem 0; }
+h3 { color: #93c5fd; margin-bottom: 1rem; }
+
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.card.clickable:hover {
+  border-color: #60a5fa;
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.5rem 0 1rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 1rem;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+button:hover { background: #2563eb; }
+
+.logout { background: #ef4444; }
+.logout:hover { background: #dc2626; }
+
+.icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+.item {
+  padding: 0.5rem;
+  margin: 0.3rem 0;
+  background: #0f172a;
+  border-radius: 6px;
+}
+
+.item.critical { border-left: 3px solid #ef4444; }
+.item.high { border-left: 3px solid #f97316; }
+.item.medium { border-left: 3px solid #eab308; }
+.item.low { border-left: 3px solid #22c55e; }
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.stats span {
+  background: #0f172a;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #60a5fa;
+}
+
+.risk-critical { border-color: #ef4444; }
+.risk-high { border-color: #f97316; }
+.risk-medium { border-color: #eab308; }
+.risk-low { border-color: #22c55e; }
+
+.loading {
+  text-align: center;
+  color: #60a5fa;
+  font-size: 1.2rem;
+  padding: 2rem;
+}
