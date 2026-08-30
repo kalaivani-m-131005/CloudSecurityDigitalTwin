@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 
-const API = "https://cloud-security-digital-twin.onrender.com";
-
+//const API = "https://cloud-security-digital-twin.onrender.com";
+const API = "http://localhost:8080";
 const theme = {
   bg: "#0d1117",
   surface: "#161b22",
@@ -117,10 +117,19 @@ export default function App() {
       });
       if (res.ok) {
         const data = await res.json();
-        setToken(data.token); setUser(data); setPage("dashboard");
+        setToken(data.token);
+        setUser(data);
+        setPage("dashboard");
+        // Auto load inventory for summary
+        const inv = await fetch(`${API}/api/inventory`, {
+          headers: { Authorization: `Bearer ${data.token}`, "Content-Type": "application/json" }
+        }).then(r => r.json());
+        setInventory(inv);
+        if(inv.summary) setSummary(inv.summary);
       } else setError("Invalid credentials. Please try again.");
     } catch { setError("Cannot connect to server. Is the backend running?"); }
   };
+      
 
   const authFetch = (url, opts = {}) =>
     fetch(url, { ...opts, headers: { ...opts.headers, Authorization: `Bearer ${token}`, "Content-Type": "application/json" } });

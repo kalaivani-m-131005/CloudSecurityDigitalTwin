@@ -1,23 +1,33 @@
 package CloudSecurityDigitalTwin;
 
+import CloudSecurityDigitalTwin.domain.User;
+import CloudSecurityDigitalTwin.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/graph")
+@CrossOrigin(origins = "*")
 public class SecurityGraphService {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public Map<String, Object> getSecurityGraph() {
         Map<String, Object> graph = new LinkedHashMap<>();
 
-        // Nodes
         List<Map<String, String>> nodes = new ArrayList<>();
+        List<Map<String, String>> edges = new ArrayList<>();
 
-        // Identity nodes
-        nodes.add(node("identity-alice",   "alice",         "IDENTITY"));
-        nodes.add(node("identity-bob",     "bob",           "IDENTITY"));
-        nodes.add(node("identity-charlie", "charlie",       "IDENTITY"));
+        // Real users from DB
+        List<User> users = userRepository.findAll();
+
+        // Identity nodes — real DB users
+        for (User user : users) {
+            nodes.add(node("identity-" + user.getUsername(), user.getUsername(), "IDENTITY"));
+        }
 
         // Role nodes
         nodes.add(node("role-admin",    "AdminRole",    "ROLE"));
@@ -25,50 +35,57 @@ public class SecurityGraphService {
         nodes.add(node("role-devops",   "DevOpsRole",   "ROLE"));
 
         // Permission nodes
-        nodes.add(node("perm-admin-all",    "ALL_ACCESS",    "PERMISSION"));
-        nodes.add(node("perm-read-only",    "READ_ONLY",     "PERMISSION"));
-        nodes.add(node("perm-devops-write", "WRITE_DEPLOY",  "PERMISSION"));
+        nodes.add(node("perm-admin-all",    "ALL_ACCESS",   "PERMISSION"));
+        nodes.add(node("perm-read-only",    "READ_ONLY",    "PERMISSION"));
+        nodes.add(node("perm-devops-write", "WRITE_DEPLOY", "PERMISSION"));
 
         // Resource nodes
-        nodes.add(node("res-prod-db",      "prod-data-bucket",  "RESOURCE"));
-        nodes.add(node("res-bastion",      "bastion-host",      "RESOURCE"));
-        nodes.add(node("res-dev-server",   "dev-api-server",    "RESOURCE"));
-        nodes.add(node("res-prod-server",  "prod-web-server",   "RESOURCE"));
+        nodes.add(node("res-prod-db",     "prod-data-bucket", "RESOURCE"));
+        nodes.add(node("res-bastion",     "bastion-host",     "RESOURCE"));
+        nodes.add(node("res-dev-server",  "dev-api-server",   "RESOURCE"));
+        nodes.add(node("res-prod-server", "prod-web-server",  "RESOURCE"));
 
         graph.put("nodes", nodes);
 
-        // Edges (Identity → Role → Permission → Resource)
-        List<Map<String, String>> edges = new ArrayList<>();
+        // Edges — real users connected to roles based on their role
+        for (User user : users) {
+            String identityId = "identity-" + user.getUsername();
+            if ("ADMIN".equals(user.getRole())) {
+                edges.add(edge(identityId, "role-admin", "HAS_ROLE"));
+            } else if ("DEVOPS".equals(user.getRole())) {
+                edges.add(edge(identityId, "role-devops", "HAS_ROLE"));
+            } else {
+                edges.add(edge(identityId, "role-readonly", "HAS_ROLE"));
+            }
+        }
 
-        // Alice (Admin) → AdminRole → ALL_ACCESS → all resources
-        edges.add(edge("identity-alice",   "role-admin",       "HAS_ROLE"));
-        edges.add(edge("role-admin",       "perm-admin-all",   "HAS_PERMISSION"));
-        edges.add(edge("perm-admin-all",   "res-prod-db",      "CAN_ACCESS"));
-        edges.add(edge("perm-admin-all",   "res-bastion",      "CAN_ACCESS"));
-        edges.add(edge("perm-admin-all",   "res-prod-server",  "CAN_ACCESS"));
-        edges.add(edge("perm-admin-all",   "res-dev-server",   "CAN_ACCESS"));
+        // Permission edges
+        edges.add(edge("role-admin",    "perm-admin-all",    "HAS_PERMISSION"));
+        edges.add(edge("role-readonly", "perm-read-only",    "HAS_PERMISSION"));
+        edges.add(edge("role-devops",   "perm-devops-write", "HAS_PERMISSION"));
 
-        // Bob (ReadOnly) → ReadOnlyRole → READ_ONLY → dev server only
-        edges.add(edge("identity-bob",     "role-readonly",    "HAS_ROLE"));
-        edges.add(edge("role-readonly",    "perm-read-only",   "HAS_PERMISSION"));
-        edges.add(edge("perm-read-only",   "res-dev-server",   "CAN_ACCESS"));
-
-        // Charlie (DevOps) → DevOpsRole → WRITE_DEPLOY → prod + bastion
-        edges.add(edge("identity-charlie", "role-devops",      "HAS_ROLE"));
-        edges.add(edge("role-devops",      "perm-devops-write","HAS_PERMISSION"));
-        edges.add(edge("perm-devops-write","res-bastion",      "CAN_ACCESS"));
-        edges.add(edge("perm-devops-write","res-prod-server",  "CAN_ACCESS"));
+        // Resource edges
+        edges.add(edge("perm-admin-all",    "res-prod-db",     "CAN_ACCESS"));
+        edges.add(edge("perm-admin-all",    "res-bastion",     "CAN_ACCESS"));
+        edges.add(edge("perm-admin-all",    "res-prod-server", "CAN_ACCESS"));
+        edges.add(edge("perm-admin-all",    "res-dev-server",  "CAN_ACCESS"));
+        edges.add(edge("perm-read-only",    "res-dev-server",  "CAN_ACCESS"));
+        edges.add(edge("perm-devops-write", "res-bastion",     "CAN_ACCESS"));
+        edges.add(edge("perm-devops-write", "res-prod-server", "CAN_ACCESS"));
 
         graph.put("edges", edges);
 
         // Stats
-        Map<String, Integer> stats = new LinkedHashMap<>();
-        stats.put("totalNodes", nodes.size());
-        stats.put("totalEdges", edges.size());
-        stats.put("identityNodes", 3);
-        stats.put("roleNodes", 3);
+        long identityCount = nodes.stream().filter(n -> "IDENTITY".equals(n.get("type"))).count();
+        long resourceCount = nodes.stream().filter(n -> "RESOURCE".equals(n.get("type"))).count();
+
+        Map<String, Object> stats = new LinkedHashMap<>();
+        stats.put("totalNodes",    nodes.size());
+        stats.put("totalEdges",    edges.size());
+        stats.put("identityNodes", identityCount);
+        stats.put("roleNodes",     3);
         stats.put("permissionNodes", 3);
-        stats.put("resourceNodes", 4);
+        stats.put("resourceNodes", resourceCount);
         graph.put("stats", stats);
 
         return graph;
