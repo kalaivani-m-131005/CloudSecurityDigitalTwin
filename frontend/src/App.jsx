@@ -1,7 +1,7 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState } from "react";
 
-//const API = "https://cloud-security-digital-twin.onrender.com";
-const API = "http://localhost:8080";
+const API = "https://cloud-security-digital-twin.onrender.com";
+
 const theme = {
   bg: "#0d1117",
   surface: "#161b22",
@@ -30,8 +30,6 @@ const s = {
   error: { background: "rgba(248,81,73,0.1)", border: "1px solid rgba(248,81,73,0.4)", borderRadius: "6px", padding: "0.75rem", color: theme.red, marginBottom: "1rem", fontSize: "0.8rem" },
   divider: { borderTop: `1px solid ${theme.border}`, margin: "1rem 0" },
   hint: { color: theme.muted, fontSize: "0.75rem", textAlign: "center" },
-
-  // Layout
   layout: { display: "flex", minHeight: "100vh" },
   sidebar: { width: "240px", background: theme.surface, borderRight: `1px solid ${theme.border}`, padding: "1rem 0", flexShrink: 0, display: "flex", flexDirection: "column" },
   sidebarLogo: { padding: "0 1rem 1rem", borderBottom: `1px solid ${theme.border}`, marginBottom: "0.5rem" },
@@ -41,24 +39,17 @@ const s = {
   main: { flex: 1, display: "flex", flexDirection: "column", overflow: "auto" },
   topbar: { padding: "0.875rem 1.5rem", borderBottom: `1px solid ${theme.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: theme.surface },
   topbarTitle: { color: theme.text, fontWeight: "600", fontSize: "0.95rem" },
-  userBadge: { display: "flex", alignItems: "center", gap: "0.5rem", background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "0.4rem 0.75rem", fontSize: "0.8rem", color: theme.muted },
   content: { padding: "1.5rem", flex: 1 },
-
-  // Cards
   metricsGrid: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem", marginBottom: "1.5rem" },
   metricCard: (c) => ({ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.25rem", borderTop: `3px solid ${c}` }),
   metricVal: (c) => ({ fontSize: "2rem", fontWeight: "700", color: c, lineHeight: 1 }),
   metricLabel: { color: theme.muted, fontSize: "0.75rem", marginTop: "0.4rem", fontWeight: "500" },
   metricChange: (c) => ({ fontSize: "0.7rem", color: c, marginTop: "0.25rem" }),
-
-  // Feature cards
   featureGrid: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem", marginBottom: "1.5rem" },
   featureCard: { background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.25rem", cursor: "pointer", transition: "border-color 0.15s" },
   featureIcon: (c) => ({ width: "36px", height: "36px", background: `${c}22`, border: `1px solid ${c}44`, borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.875rem", fontSize: "18px" }),
   featureTitle: { color: theme.text, fontWeight: "600", fontSize: "0.875rem", marginBottom: "0.25rem" },
   featureDesc: { color: theme.muted, fontSize: "0.775rem", lineHeight: "1.4" },
-
-  // Table
   tableWrap: { background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", overflow: "hidden" },
   tableHeader: { display: "grid", padding: "0.75rem 1rem", background: theme.bg, borderBottom: `1px solid ${theme.border}`, color: theme.muted, fontSize: "0.75rem", fontWeight: "600", letterSpacing: "0.05em" },
   tableRow: { display: "grid", padding: "0.75rem 1rem", borderBottom: `1px solid ${theme.border}`, alignItems: "center", fontSize: "0.85rem" },
@@ -67,26 +58,19 @@ const s = {
     const [bg, color] = map[level?.toLowerCase()] || ["#7d859022", "#7d8590"];
     return { background: bg, color, border: `1px solid ${color}44`, padding: "0.2rem 0.5rem", borderRadius: "4px", fontSize: "0.7rem", fontWeight: "600" };
   },
-
-  // Graph
   graphGrid: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem" },
   graphCol: (c) => ({ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1rem", borderTop: `2px solid ${c}` }),
   graphColTitle: (c) => ({ color: c, fontSize: "0.7rem", fontWeight: "700", letterSpacing: "0.1em", marginBottom: "0.875rem", textTransform: "uppercase" }),
   graphNode: { background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: "4px", padding: "0.4rem 0.6rem", marginBottom: "0.4rem", fontSize: "0.8rem", color: theme.text },
-
-  // Sim
   simCard: { background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.5rem", maxWidth: "480px" },
   select: { width: "100%", padding: "0.6rem 0.875rem", background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: "6px", color: theme.text, fontSize: "0.875rem", marginBottom: "1.25rem", outline: "none" },
   btnDanger: { width: "100%", padding: "0.7rem", background: "#da3633", border: "1px solid #f85149", borderRadius: "6px", color: "#fff", fontSize: "0.875rem", fontWeight: "500", cursor: "pointer" },
-
-  // Result
   resultGrid: { display: "grid", gridTemplateColumns: "300px 1fr", gap: "1.5rem" },
   riskCard: { background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.5rem", textAlign: "center" },
   aiCard: { background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.5rem" },
   aiSection: { marginBottom: "1.25rem" },
   aiLabel: { color: theme.muted, fontSize: "0.75rem", fontWeight: "600", letterSpacing: "0.05em", marginBottom: "0.5rem", textTransform: "uppercase" },
   aiText: { color: theme.text, fontSize: "0.875rem", lineHeight: "1.6", background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "0.875rem" },
-
   loading: { textAlign: "center", padding: "4rem", color: theme.muted, fontSize: "0.875rem" },
   sectionTitle: { color: theme.text, fontWeight: "600", fontSize: "0.95rem", marginBottom: "1rem" },
   sectionSub: { color: theme.muted, fontSize: "0.8rem", marginBottom: "1.25rem" },
@@ -104,8 +88,9 @@ export default function App() {
   const [simResult, setSimResult] = useState(null);
   const [aiResult, setAiResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [summary, setSummary] = useState({totalResources:0, criticalCount:0, highCount:0, lowCount:0});
+  const [summary, setSummary] = useState({ totalResources: 0, criticalCount: 0, highCount: 0, lowCount: 0 });
   const [identity, setIdentity] = useState("identity-alice");
+  const [dbUsers, setDbUsers] = useState([]);
 
   const login = async () => {
     setError("");
@@ -120,29 +105,43 @@ export default function App() {
         setToken(data.token);
         setUser(data);
         setPage("dashboard");
-        // Auto load inventory for summary
+        // Auto load inventory + graph for summary and real users
         const inv = await fetch(`${API}/api/inventory`, {
           headers: { Authorization: `Bearer ${data.token}`, "Content-Type": "application/json" }
         }).then(r => r.json());
         setInventory(inv);
-        if(inv.summary) setSummary(inv.summary);
+        if (inv.summary) setSummary(inv.summary);
+        if (inv.iamUsers) setDbUsers(inv.iamUsers);
       } else setError("Invalid credentials. Please try again.");
-    } catch { setError("Cannot connect to server. Is the backend running?"); }
+    } catch { setError("Cannot connect to server. Check backend."); }
   };
-      
 
   const authFetch = (url, opts = {}) =>
     fetch(url, { ...opts, headers: { ...opts.headers, Authorization: `Bearer ${token}`, "Content-Type": "application/json" } });
 
-  const loadInventory = async () => { setLoading(true); setPage("inventory"); const d = await authFetch(`${API}/api/inventory`).then(r => r.json()); setInventory(d); if(d.summary) setSummary(d.summary); setLoading(false); };
-  const loadGraph = async () => { setLoading(true); setPage("graph"); const d = await authFetch(`${API}/api/graph`).then(r => r.json()); setGraph(d); setLoading(false); };
+  const loadInventory = async () => {
+    setLoading(true); setPage("inventory");
+    const d = await authFetch(`${API}/api/inventory`).then(r => r.json());
+    setInventory(d);
+    if (d.summary) setSummary(d.summary);
+    if (d.iamUsers) setDbUsers(d.iamUsers);
+    setLoading(false);
+  };
+
+  const loadGraph = async () => {
+    setLoading(true); setPage("graph");
+    const d = await authFetch(`${API}/api/graph`).then(r => r.json());
+    setGraph(d); setLoading(false);
+  };
+
   const runSim = async () => {
     setLoading(true); setPage("result");
     const sim = await authFetch(`${API}/api/simulate`, { method: "POST", body: JSON.stringify({ identityId: identity }) }).then(r => r.json());
     const ai = await authFetch(`${API}/api/explain`, { method: "POST", body: JSON.stringify(sim) }).then(r => r.json());
     setSimResult(sim); setAiResult(ai); setLoading(false);
   };
-  const logout = () => { setToken(""); setUser(null); setPage("login"); };
+
+  const logout = () => { setToken(""); setUser(null); setPage("login"); setSummary({ totalResources: 0, criticalCount: 0, highCount: 0, lowCount: 0 }); };
 
   const navItems = [
     { id: "dashboard", label: "Overview", icon: "⊞" },
@@ -165,10 +164,8 @@ export default function App() {
       <div style={{ flex: 1, padding: "0.5rem 0" }}>
         <div style={{ padding: "0 1rem", marginBottom: "0.25rem", color: theme.muted, fontSize: "0.7rem", fontWeight: "600", letterSpacing: "0.08em" }}>NAVIGATION</div>
         {navItems.map(item => (
-          <div key={item.id} style={s.navItem(page === item.id)}
-            onClick={() => item.action ? item.action() : setPage(item.id)}>
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
+          <div key={item.id} style={s.navItem(page === item.id)} onClick={() => item.action ? item.action() : setPage(item.id)}>
+            <span>{item.icon}</span><span>{item.label}</span>
           </div>
         ))}
       </div>
@@ -196,7 +193,6 @@ export default function App() {
     </div>
   );
 
-  // LOGIN
   if (page === "login") return (
     <div style={s.center}>
       <div style={s.loginWrap}>
@@ -213,25 +209,27 @@ export default function App() {
           <input style={s.input} type="password" placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && login()} />
           <button style={s.btnPrimary} onClick={login}>Sign in</button>
           <div style={s.divider} />
-          <div style={s.hint}>Use your registered credentials to sign in</div>
+          <div style={s.hint}>Register your own account or use: kalai / kalaivani123</div>
         </div>
       </div>
     </div>
   );
 
-  // DASHBOARD
   if (page === "dashboard") return (
     <div style={s.layout}>
       <Sidebar />
       <div style={s.main}>
-      <Topbar title={`Welcome back, ${user?.username?.charAt(0).toUpperCase() + user?.username?.slice(1)}`} subtitle={`Logged in as ${user?.role} · ${new Date().toLocaleDateString('en-IN', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}`} />
+        <Topbar
+          title={`Welcome back, ${user?.username?.charAt(0).toUpperCase() + user?.username?.slice(1)}`}
+          subtitle={`Logged in as ${user?.role} · ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+        />
         <div style={s.content}>
           <div style={s.metricsGrid}>
             {[
-              ["Total Assets", summary.totalResources||"...", theme.accent, "↑ All resources monitored"],
-["Critical", summary.criticalCount||"...", theme.red, "⚠ Immediate action required"],
-["High Risk", summary.highCount||"...", theme.orange, "↑ Review recommended"],
-["Secure", summary.lowCount||"...", theme.green, "✓ No issues detected"],
+              ["Total Assets", summary.totalResources || "...", theme.accent, "↑ All resources monitored"],
+              ["Critical", summary.criticalCount || "...", theme.red, "⚠ Immediate action required"],
+              ["High Risk", summary.highCount || "...", theme.orange, "↑ Review recommended"],
+              ["Secure", summary.lowCount || "...", theme.green, "✓ No issues detected"],
             ].map(([label, val, color, note]) => (
               <div key={label} style={s.metricCard(color)}>
                 <div style={s.metricVal(color)}>{val}</div>
@@ -240,7 +238,6 @@ export default function App() {
               </div>
             ))}
           </div>
-
           <div style={{ ...s.sectionTitle, marginBottom: "0.75rem" }}>Security Modules</div>
           <div style={s.featureGrid}>
             {[
@@ -257,30 +254,26 @@ export default function App() {
               </div>
             ))}
           </div>
-
           <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: "8px", padding: "1.25rem" }}>
-            <div style={s.sectionTitle}>Recent Activity</div>
-            {[
-              ["Identity scan completed", "All 3 IAM users analyzed", theme.green, "2m ago"],
-              ["Attack path detected", "Admin → prod-db (CRITICAL)", theme.red, "5m ago"],
-              ["Risk score updated", "Alice: 81/100 — CRITICAL", theme.orange, "8m ago"],
-            ].map(([title, desc, color, time]) => (
-              <div key={title} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.75rem 0", borderBottom: `1px solid ${theme.border}` }}>
-                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: color, flexShrink: 0 }} />
+            <div style={s.sectionTitle}>Registered Users ({dbUsers.length})</div>
+            {dbUsers.length > 0 ? dbUsers.map(u => (
+              <div key={u.username} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.75rem 0", borderBottom: `1px solid ${theme.border}` }}>
+                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: u.role === "ADMIN" ? theme.red : theme.green, flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: theme.text, fontSize: "0.85rem" }}>{title}</div>
-                  <div style={{ color: theme.muted, fontSize: "0.75rem" }}>{desc}</div>
+                  <div style={{ color: theme.text, fontSize: "0.85rem", fontWeight: "500" }}>{u.username}</div>
+                  <div style={{ color: theme.muted, fontSize: "0.75rem" }}>{u.role} · MFA: {u.mfaEnabled === "true" ? "✓ Enabled" : "✗ Disabled"}</div>
                 </div>
-                <div style={{ color: theme.muted, fontSize: "0.75rem" }}>{time}</div>
+                <span style={s.badge(u.role === "ADMIN" ? "critical" : "low")}>{u.role}</span>
               </div>
-            ))}
+            )) : (
+              <div style={{ color: theme.muted, fontSize: "0.85rem" }}>Click Cloud Inventory to load users...</div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 
-  // INVENTORY
   if (page === "inventory") return (
     <div style={s.layout}>
       <Sidebar />
@@ -303,7 +296,6 @@ export default function App() {
                   </div>
                 ))}
               </div>
-
               <div style={{ ...s.sectionTitle, marginBottom: "0.5rem" }}>S3 Buckets</div>
               <div style={{ ...s.tableWrap, marginBottom: "1.5rem" }}>
                 <div style={{ ...s.tableHeader, gridTemplateColumns: "2fr 1fr 1fr" }}>
@@ -317,7 +309,6 @@ export default function App() {
                   </div>
                 ))}
               </div>
-
               <div style={{ ...s.sectionTitle, marginBottom: "0.5rem" }}>IAM Users</div>
               <div style={s.tableWrap}>
                 <div style={{ ...s.tableHeader, gridTemplateColumns: "1fr 1fr 1fr" }}>
@@ -340,7 +331,6 @@ export default function App() {
     </div>
   );
 
-  // GRAPH
   if (page === "graph") return (
     <div style={s.layout}>
       <Sidebar />
@@ -374,7 +364,6 @@ export default function App() {
     </div>
   );
 
-  // SIMULATE
   if (page === "simulate") return (
     <div style={s.layout}>
       <Sidebar />
@@ -383,7 +372,7 @@ export default function App() {
         <div style={s.content}>
           <div style={s.simCard}>
             <div style={{ ...s.sectionTitle, marginBottom: "0.25rem" }}>Configure Simulation</div>
-            <div style={{ ...s.sectionSub }}>Select an identity to simulate a compromise and measure the blast radius.</div>
+            <div style={{ color: theme.muted, fontSize: "0.8rem", marginBottom: "1.25rem" }}>Select an identity to simulate a compromise and measure the blast radius.</div>
             <label style={s.label}>Target Identity</label>
             <select style={s.select} value={identity} onChange={e => setIdentity(e.target.value)}>
               <option value="identity-alice">Alice — Admin Role (Expected: CRITICAL)</option>
@@ -397,7 +386,6 @@ export default function App() {
     </div>
   );
 
-  // RESULT
   if (page === "result") return (
     <div style={s.layout}>
       <Sidebar />
